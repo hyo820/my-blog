@@ -82,9 +82,16 @@ body {
 }
 
 .header-link {
-  margin-left: auto;
   text-decoration: none;
   font-size: 1rem;
+}
+
+/* .header-link가 여러 개일 때(2048/픽셀 아트) margin-left: auto를 모든 링크에 주면
+   flexbox가 남는 공간을 두 auto 마진에 절반씩 분배해 두 링크 사이가 벌어진다.
+   .site-title 바로 다음 링크에만 auto 마진을 줘서 링크 그룹 전체를 오른쪽으로
+   밀고, 그 뒤 링크들은 gap만큼만 떨어지게 한다. */
+.site-title + .header-link {
+  margin-left: auto;
 }
 
 #theme-toggle {

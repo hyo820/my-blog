@@ -5,7 +5,13 @@ const path = require('path');
 
 const { parseFrontmatter } = require('./src/frontmatter');
 const { parseMarkdown } = require('./src/markdown');
-const { renderIndexPage, renderPostPage, renderTagPage, renderGamePage } = require('./src/templates');
+const {
+  renderIndexPage,
+  renderPostPage,
+  renderTagPage,
+  renderGamePage,
+  renderPixelArtPage,
+} = require('./src/templates');
 
 const ROOT = __dirname;
 const POSTS_DIR = path.join(ROOT, 'posts');
@@ -79,6 +85,10 @@ function build() {
   const gameDir = path.join(DIST_DIR, 'game', '2048');
   fs.mkdirSync(gameDir, { recursive: true });
   fs.writeFileSync(path.join(gameDir, 'index.html'), renderGamePage());
+
+  const pixelArtDir = path.join(DIST_DIR, 'pixel-art');
+  fs.mkdirSync(pixelArtDir, { recursive: true });
+  fs.writeFileSync(path.join(pixelArtDir, 'index.html'), renderPixelArtPage());
 
   console.log(`빌드 완료: 포스트 ${posts.length}개, 태그 ${tagMap.size}개 → dist/`);
 }

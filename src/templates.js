@@ -45,6 +45,7 @@ ${extraStyleTags ? extraStyleTags + '\n' : ''}<script>
 <header class="site-header">
   <a class="site-title" href="${rootPath}/">${SITE_TITLE}</a>
   <a class="header-link" href="${rootPath}/game/2048/">🎮 2048</a>
+  <a class="header-link" href="${rootPath}/pixel-art/">🎨 픽셀 아트</a>
   <button id="theme-toggle" type="button" aria-label="다크 모드 전환">🌓</button>
 </header>
 <main class="content">
@@ -149,4 +150,76 @@ ${gridCells}
   });
 }
 
-module.exports = { renderIndexPage, renderPostPage, renderTagPage, renderGamePage };
+// 픽셀 아트 에디터 페이지. 정적 뼈대 HTML만 렌더링하며, 실제 채색/저장 로직은
+// pixel-art.js가 클라이언트에서 담당한다. DOM id/class 계약은
+// tasks/pixel-art-editor/dom-contract.md 참고.
+function renderPixelArtPage() {
+  // 팔레트 15색 + 투명 스와치 = 16개. 각 스와치는 data-color에 색상값을 담고,
+  // 배경색은 빌드 시점에 정적으로 확정되므로 inline style로 직접 지정한다
+  // (자세한 이유는 dom-contract.md 2절 참고).
+  const paletteColors = [
+    { color: '#000000', label: '검정' },
+    { color: '#ffffff', label: '흰색' },
+    { color: '#ef4444', label: '빨강' },
+    { color: '#f97316', label: '주황' },
+    { color: '#facc15', label: '노랑' },
+    { color: '#84cc16', label: '라임' },
+    { color: '#22c55e', label: '초록' },
+    { color: '#14b8a6', label: '청록' },
+    { color: '#22d3ee', label: '하늘' },
+    { color: '#3b82f6', label: '파랑' },
+    { color: '#6366f1', label: '남색' },
+    { color: '#a855f7', label: '보라' },
+    { color: '#ec4899', label: '분홍' },
+    { color: '#92400e', label: '갈색' },
+    { color: '#9ca3af', label: '회색' },
+  ];
+
+  const paletteSwatches = paletteColors
+    .map(
+      ({ color, label }) =>
+        `  <button type="button" class="palette-swatch" data-color="${color}" style="background-color: ${color};" aria-label="${label}"></button>`
+    )
+    .join('\n');
+
+  const transparentSwatch =
+    '  <button type="button" class="palette-swatch palette-swatch-transparent" data-color="transparent" aria-label="투명"></button>';
+
+  const pixelCells = Array.from(
+    { length: 256 },
+    (_, i) => `  <div class="pixel-cell" data-index="${i}"></div>`
+  ).join('\n');
+
+  const body = `<h1>픽셀 아트 에디터</h1>
+<div class="palette-panel">
+  <div id="palette" class="palette">
+${paletteSwatches}
+${transparentSwatch}
+  <input type="color" id="custom-color" class="custom-color" value="#000000" aria-label="커스텀 색상">
+  </div>
+  <div class="current-color-box">
+    <span class="current-color-label">현재 색상</span>
+    <span id="current-color-preview" class="current-color-preview"></span>
+  </div>
+</div>
+<div class="tool-row">
+  <button id="eraser-btn" type="button" class="tool-btn">🧹 지우개</button>
+  <button id="clear-btn" type="button" class="tool-btn">🗑️ 전체 지우기</button>
+  <button id="save-btn" type="button" class="tool-btn">💾 PNG로 저장</button>
+</div>
+<div id="pixel-grid" class="pixel-grid">
+${pixelCells}
+</div>
+<canvas id="export-canvas" width="256" height="256" hidden></canvas>
+<p class="pixel-instructions">칸을 클릭하거나 드래그해서 그림을 그려보세요.</p>`;
+
+  return layout({
+    title: '픽셀 아트 에디터',
+    rootPath: '..',
+    bodyHtml: body,
+    extraStyles: ['assets/css/pixel-art.css'],
+    extraScripts: ['assets/js/pixel-art.js'],
+  });
+}
+
+module.exports = { renderIndexPage, renderPostPage, renderTagPage, renderGamePage, renderPixelArtPage };
