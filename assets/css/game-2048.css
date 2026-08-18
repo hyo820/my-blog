@@ -1,0 +1,351 @@
+/* game-2048.css
+ * 2048 게임 전용 스타일. assets/css/style.css 의 --color-* 변수 체계와
+ * 다크모드 오버라이드 패턴을 그대로 재사용하고, 타일 전용 색상 변수만
+ * 이 파일에서 새로 정의한다. 이 페이지에만 로드되므로 다른 페이지에는
+ * 영향이 없다.
+ */
+
+:root {
+  /* 타일 배경색 (라이트 모드) — 값이 커질수록 진해지고 채도가 높아짐 */
+  --tile-2-bg: #eee4da;
+  --tile-4-bg: #ede0c8;
+  --tile-8-bg: #f2b179;
+  --tile-16-bg: #f59563;
+  --tile-32-bg: #f67c5f;
+  --tile-64-bg: #f65e3b;
+  --tile-128-bg: #edcf72;
+  --tile-256-bg: #edcc61;
+  --tile-512-bg: #edc850;
+  --tile-1024-bg: #edc53f;
+  --tile-2048-bg: #f0b429;
+  --tile-super-bg: #3c3a32;
+
+  /* 타일 텍스트 색 */
+  --tile-text-dark: #6b6b70;
+  --tile-text-light: #fbfaf8;
+
+  /* 2048 타일 강조 글로우 (--color-accent 톤과 어울리게) */
+  --tile-2048-glow: rgba(37, 99, 235, 0.35);
+
+  /* 오버레이 반투명 배경 (--color-bg 기반) */
+  --overlay-bg: rgba(255, 255, 255, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --tile-2-bg: #4a463f;
+    --tile-4-bg: #5a5240;
+    --tile-8-bg: #c17d40;
+    --tile-16-bg: #c96b3d;
+    --tile-32-bg: #cc5a37;
+    --tile-64-bg: #cf4626;
+    --tile-128-bg: #b89a3e;
+    --tile-256-bg: #bb9836;
+    --tile-512-bg: #bd952c;
+    --tile-1024-bg: #c0921f;
+    --tile-2048-bg: #e0a41a;
+    --tile-super-bg: #17171a;
+
+    --tile-text-dark: #d8d4cc;
+    --tile-text-light: #fbfaf8;
+
+    --tile-2048-glow: rgba(110, 168, 254, 0.4);
+
+    --overlay-bg: rgba(18, 18, 18, 0.85);
+  }
+}
+
+:root[data-theme="dark"] {
+  --tile-2-bg: #4a463f;
+  --tile-4-bg: #5a5240;
+  --tile-8-bg: #c17d40;
+  --tile-16-bg: #c96b3d;
+  --tile-32-bg: #cc5a37;
+  --tile-64-bg: #cf4626;
+  --tile-128-bg: #b89a3e;
+  --tile-256-bg: #bb9836;
+  --tile-512-bg: #bd952c;
+  --tile-1024-bg: #c0921f;
+  --tile-2048-bg: #e0a41a;
+  --tile-super-bg: #17171a;
+
+  --tile-text-dark: #d8d4cc;
+  --tile-text-light: #fbfaf8;
+
+  --tile-2048-glow: rgba(110, 168, 254, 0.4);
+
+  --overlay-bg: rgba(18, 18, 18, 0.85);
+}
+
+/* ---------- 점수판 ---------- */
+
+.score-board {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.score-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5rem;
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+}
+
+.score-label {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.score-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+#new-game-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: var(--color-text);
+  margin-left: auto;
+}
+
+#new-game-btn:hover {
+  background: var(--color-code-bg);
+}
+
+/* ---------- 그리드 ---------- */
+
+.game-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 1rem;
+  padding: 0.6rem;
+  background: var(--color-border);
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.grid-cell {
+  background: var(--color-code-bg);
+  border-radius: 6px;
+}
+
+/* ---------- 타일 레이어 ---------- */
+
+.tile-layer {
+  position: absolute;
+  inset: 0.6rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 0.6rem;
+  pointer-events: none;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: clamp(1rem, 5vw, 1.6rem);
+  color: var(--tile-text-dark);
+  background: var(--tile-2-bg);
+  transition: background-color 0.1s ease;
+  user-select: none;
+}
+
+/* 값별 타일 색상 — 값이 커질수록 진해지고 채도가 높아짐 */
+.tile[data-value="2"] {
+  background: var(--tile-2-bg);
+  color: var(--tile-text-dark);
+}
+
+.tile[data-value="4"] {
+  background: var(--tile-4-bg);
+  color: var(--tile-text-dark);
+}
+
+.tile[data-value="8"] {
+  background: var(--tile-8-bg);
+  color: var(--tile-text-light);
+}
+
+.tile[data-value="16"] {
+  background: var(--tile-16-bg);
+  color: var(--tile-text-light);
+}
+
+.tile[data-value="32"] {
+  background: var(--tile-32-bg);
+  color: var(--tile-text-light);
+}
+
+.tile[data-value="64"] {
+  background: var(--tile-64-bg);
+  color: var(--tile-text-light);
+}
+
+.tile[data-value="128"] {
+  background: var(--tile-128-bg);
+  color: var(--tile-text-light);
+  font-size: clamp(0.9rem, 4.5vw, 1.45rem);
+}
+
+.tile[data-value="256"] {
+  background: var(--tile-256-bg);
+  color: var(--tile-text-light);
+  font-size: clamp(0.9rem, 4.5vw, 1.45rem);
+}
+
+.tile[data-value="512"] {
+  background: var(--tile-512-bg);
+  color: var(--tile-text-light);
+  font-size: clamp(0.9rem, 4.5vw, 1.45rem);
+}
+
+.tile[data-value="1024"] {
+  background: var(--tile-1024-bg);
+  color: var(--tile-text-light);
+  font-size: clamp(0.75rem, 4vw, 1.25rem);
+}
+
+.tile[data-value="2048"] {
+  background: var(--tile-2048-bg);
+  color: var(--tile-text-light);
+  font-size: clamp(0.75rem, 4vw, 1.25rem);
+  box-shadow: 0 0 0 2px var(--tile-2048-glow), 0 0 14px var(--tile-2048-glow);
+}
+
+/* 2048보다 큰 값(4096 이상)을 위한 fallback — 가장 진한 색 */
+.tile:not([data-value="2"]):not([data-value="4"]):not([data-value="8"]):not([data-value="16"]):not([data-value="32"]):not([data-value="64"]):not([data-value="128"]):not([data-value="256"]):not([data-value="512"]):not([data-value="1024"]):not([data-value="2048"]) {
+  background: var(--tile-super-bg);
+  color: var(--tile-text-light);
+  font-size: clamp(0.7rem, 3.5vw, 1.1rem);
+}
+
+/* ---------- 오버레이 ---------- */
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(2px);
+  border-radius: 10px;
+  text-align: center;
+  padding: 1rem;
+}
+
+.game-overlay[hidden] {
+  display: none;
+}
+
+.overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.overlay-message {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.overlay-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#continue-btn,
+#overlay-new-game-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+#continue-btn:hover,
+#overlay-new-game-btn:hover {
+  background: var(--color-code-bg);
+}
+
+#continue-btn[hidden] {
+  display: none;
+}
+
+/* ---------- 조작 안내 ---------- */
+
+.game-instructions {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+/* ---------- 반응형 ---------- */
+
+@media (max-width: 480px) {
+  .score-board {
+    justify-content: center;
+  }
+
+  .score-box {
+    min-width: 4.5rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  #new-game-btn {
+    margin-left: 0;
+    width: 100%;
+    order: 3;
+  }
+
+  .game-grid {
+    gap: 0.4rem;
+    padding: 0.4rem;
+  }
+
+  .tile-layer {
+    inset: 0.4rem;
+    gap: 0.4rem;
+  }
+
+  .tile {
+    font-size: clamp(0.85rem, 6vw, 1.3rem);
+    border-radius: 5px;
+  }
+
+  .overlay-message {
+    font-size: 1.2rem;
+  }
+}

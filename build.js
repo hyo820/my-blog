@@ -5,7 +5,7 @@ const path = require('path');
 
 const { parseFrontmatter } = require('./src/frontmatter');
 const { parseMarkdown } = require('./src/markdown');
-const { renderIndexPage, renderPostPage, renderTagPage } = require('./src/templates');
+const { renderIndexPage, renderPostPage, renderTagPage, renderGamePage } = require('./src/templates');
 
 const ROOT = __dirname;
 const POSTS_DIR = path.join(ROOT, 'posts');
@@ -75,6 +75,10 @@ function build() {
   }
 
   copyDir(ASSETS_DIR, path.join(DIST_DIR, 'assets'));
+
+  const gameDir = path.join(DIST_DIR, 'game', '2048');
+  fs.mkdirSync(gameDir, { recursive: true });
+  fs.writeFileSync(path.join(gameDir, 'index.html'), renderGamePage());
 
   console.log(`빌드 완료: 포스트 ${posts.length}개, 태그 ${tagMap.size}개 → dist/`);
 }
